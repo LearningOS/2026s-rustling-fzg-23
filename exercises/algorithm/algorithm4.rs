@@ -3,7 +3,6 @@
 	This problem requires you to implement a basic interface for a binary tree
 */
 
-//I AM NOT DONE
 use std::cmp::Ordering;
 use std::fmt::Debug;
 
@@ -41,35 +40,92 @@ where
 
 impl<T> BinarySearchTree<T>
 where
-    T: Ord,
+    T: Ord+Clone,
 {
-
     fn new() -> Self {
         BinarySearchTree { root: None }
     }
 
     // Insert a value into the BST
     fn insert(&mut self, value: T) {
-        //TODO
+        match &mut self.root {
+            None => {
+                let node = Box::new(TreeNode::new(value));
+                let node_ptr = Some(node);
+                self.root = node_ptr;
+            }
+            Some(root) => {
+                root.insert(value);
+            }
+        }
     }
 
     // Search for a value in the BST
-    fn search(&self, value: T) -> bool {
-        //TODO
-        true
+    fn search(&mut self, value: T) -> bool {
+        match self.root{
+            None => false,
+            Some(ref root)=>{
+                self.root.as_mut().unwrap().search(value)
+            }
+        }
+
     }
 }
-
 impl<T> TreeNode<T>
 where
-    T: Ord,
+    T: Ord+Clone,
 {
     // Insert a node into the tree
-    fn insert(&mut self, value: T) {
-        //TODO
+    fn insert(&mut self, value: T)
+    {
+        if value > self.value {
+            match self.right {
+                None => {
+                    let node = Box::new(TreeNode::new(value));
+                    let node_ptr = Some(node);
+                    self.right = node_ptr;
+                }
+                Some(ref mut right) => {
+                    self.right.as_mut().unwrap().insert(value);
+                }
+            }
+        } else if value < self.value {
+            match self.left {
+                None => {
+                    let node = Box::new(TreeNode::new(value));
+                    let node_ptr = Some(node);
+                    self.left = node_ptr;
+                }
+                Some(ref mut left) => {
+                    self.left.as_mut().unwrap().insert(value);
+                }
+            }
+        }
+        else{
+
+        }
+    }
+    fn search(&mut self, value: T) -> bool {
+        if self.value == value {
+            return true;
+        }
+        else if self.value > value {
+            match self.left {
+              None=> false,
+                Some(ref mut node) => return self.left.as_mut().unwrap().search(value),
+            }
+        }
+        else if self.value < value {
+            match self.right {
+                None=> false,
+                Some(ref mut node) => return self.right.as_mut().unwrap().search(value),
+            }
+        }
+        else{
+            false
+        }
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -89,7 +145,7 @@ mod tests {
         bst.insert(2);
         bst.insert(4);
 
-        
+
         assert_eq!(bst.search(5), true);
         assert_eq!(bst.search(3), true);
         assert_eq!(bst.search(7), true);

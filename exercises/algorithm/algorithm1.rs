@@ -2,7 +2,7 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
+
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -47,7 +47,7 @@ impl<T> LinkedList<T> {
     pub fn add(&mut self, obj: T) {
         let mut node = Box::new(Node::new(obj));
         node.next = None;
-        let node_ptr = Some(unsafe { NonNull::new_unchecked(Box::into_raw(node)) });
+        let node_ptr = Some(unsafe { NonNull::new_unchecked(Box::into_raw(node))});
         match self.end {
             None => self.start = node_ptr,
             Some(end_ptr) => unsafe { (*end_ptr.as_ptr()).next = node_ptr },
@@ -69,17 +69,30 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
-	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+    pub fn merge(mut list_a: LinkedList<T>,mut list_b: LinkedList<T>) -> Self
+    where
+        T: Ord+Clone,
+    {
+        {
+            let mut v = Vec::new();
+            for i in 0..list_a.length {
+                v.push((*list_a.get(i as i32).unwrap()).clone());
+            }
+            for i in 0..list_b.length {
+                v.push((*list_b.get(i as i32).unwrap()).clone());
+            }
+            v.sort();
+            let l = list_b.length + list_a.length;
+            let mut fz = LinkedList::<T>::new();
+            fz.length = l;
+            for i in 0..l {
+                fz.add(v[i as usize].clone());
+            }
+            fz
         }
-	}
-}
+    }
 
+}
 impl<T> Display for LinkedList<T>
 where
     T: Display,

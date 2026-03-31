@@ -6,6 +6,8 @@
 //
 // Execute `rustlings hint from_into` or use the `hint` watch subcommand for a
 // hint.
+#![feature(type_info)]
+use std::mem::type_info::TypeKind::Struct;
 
 #[derive(Debug)]
 struct Person {
@@ -40,12 +42,28 @@ impl Default for Person {
 // If while parsing the age, something goes wrong, then return the default of
 // Person Otherwise, then return an instantiated Person object with the results
 
-// I AM NOT DONE
+
 
 impl From<&str> for Person {
     fn from(s: &str) -> Person {
+        if s.is_empty() {
+            return Person::default();
+        }
+        else {
+            let mut x=s.split(",");
+            let n=x.next();
+            let a=x.next().unwrap_or("").parse::<usize>();
+            let b=x.next();
+            if n.is_none()||a.is_err()||n.unwrap().is_empty()||b.is_some(){
+                return Person::default();
+            }
+            else{
+               Person{name: n.unwrap().to_string(), age: a.unwrap()}
+            }
+        }
+        }
     }
-}
+
 
 fn main() {
     // Use the `from` function

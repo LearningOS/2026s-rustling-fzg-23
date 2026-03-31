@@ -2,29 +2,31 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
+
 
 use std::cmp::Ord;
 use std::default::Default;
 
 pub struct Heap<T>
 where
-    T: Default,
+    T: Default+PartialOrd,
 {
     count: usize,
     items: Vec<T>,
     comparator: fn(&T, &T) -> bool,
+    min:bool,
 }
 
 impl<T> Heap<T>
 where
-    T: Default,
+    T: Default+PartialOrd,
 {
     pub fn new(comparator: fn(&T, &T) -> bool) -> Self {
         Self {
             count: 0,
             items: vec![T::default()],
             comparator,
+            min:false,
         }
     }
 
@@ -38,6 +40,8 @@ where
 
     pub fn add(&mut self, value: T) {
         //TODO
+        self.items.push(value);
+        self.count += 1;
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -58,7 +62,28 @@ where
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
         //TODO
-		0
+        if self.right_child_idx(idx) >= self.count {
+            return self.left_child_idx(idx);
+        }
+        if self.items[self.right_child_idx(idx)] > self.items[self.left_child_idx(idx)] {
+            return self.left_child_idx(idx);
+        }
+        else{
+            return self.right_child_idx(idx);
+        }
+    }
+
+    fn max_child_idx(&self, idx: usize) -> usize {
+        //TODO
+        if self.right_child_idx(idx) >= self.count {
+            return self.left_child_idx(idx);
+        }
+        if self.items[self.right_child_idx(idx)] > self.items[self.left_child_idx(idx)] {
+            return self.right_child_idx(idx);
+        }
+        else{
+            return self.left_child_idx(idx);
+        }
     }
 }
 
@@ -68,24 +93,45 @@ where
 {
     /// Create a new MinHeap
     pub fn new_min() -> Self {
-        Self::new(|a, b| a < b)
+     Self::new(|a, b| a < b)
     }
 
     /// Create a new MaxHeap
     pub fn new_max() -> Self {
-        Self::new(|a, b| a > b)
+       Self::new(|a, b| a < b)
     }
 }
 
 impl<T> Iterator for Heap<T>
 where
-    T: Default,
+    T: Default+PartialOrd,
 {
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        if self.is_empty() {
+            return None;
+        } else {
+            if self.min==false{
+                for i in 0..self.len()-1 {
+                    for j in 1..(self.len()-i).max(2) {
+                        if self.items[j] < self.items[j + 1] {
+                            self.items.swap(j, j + 1)
+                        }
+                    }
+                }
+            }
+            else if self.min==true{
+                for i in 1..(self.len()-1).max(2) {
+                    if self.items[i] > self.items[i+1] {
+                        self.items.swap(i, i+1)
+                    }
+                }
+            }
+            let re=self.items.remove(1);
+            self.count -= 1;
+            Some(re)
+        }
     }
 }
 
@@ -97,7 +143,9 @@ impl MinHeap {
     where
         T: Default + Ord,
     {
-        Heap::new(|a, b| a < b)
+        let mut x= Heap::new(|a, b| a < b);
+        x.min=true;
+        x
     }
 }
 
@@ -109,7 +157,9 @@ impl MaxHeap {
     where
         T: Default + Ord,
     {
-        Heap::new(|a, b| a > b)
+        let mut x= Heap::new(|a, b| a > b);
+        x.min=false;
+        x
     }
 }
 
